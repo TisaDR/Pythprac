@@ -1,49 +1,40 @@
 import requests
+print(requests)
+import time
+time.sleep(1)
+
+response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true")
+print(response)
+
+print(response.status_code)
+print(response.text)
+
+data = response.json()
+print(data)
+print(type(data))
+
+print(data["bitcoin"]["usd"])
+price = data["bitcoin"]["usd"]
+print(f"Bitcoin is ${price}")
+# price = data["ethereum"]["usd"]
+# print(f"Ethereum is ${price}")
+
+for coin in data:
+   change = data[coin].get("usd_24h_change", 0)
+   price = data[coin]["usd"]
+   if change > 0:
+      print(f"{coin}  ${price:.2f}   ▲ +{change:>10.2f}%")
+   else:
+      print(f"{coin}  ${price:.2f}   ▼ {change:>10.2f}%")
+   biggest_coin = ""
+   biggest_change = 0
+   if change > biggest_change:
+      biggest_change = change
+      biggest_coin = coin
+
+print(f"Biggest gainer: {biggest_coin} +{biggest_change:.2f}%")
+
+    
+   
 
 
-URL = "https://api.coingecko.com/api/v3/simple/price"
-PARAMS = {
-    "ids": "bitcoin,ethereum,solana",
-    "vs_currencies": "usd",
-    "include_24hr_change": "true",
-    "include_market_cap": "true",
-}
-
-def format_price(coin, info):
-    price  = info["usd"]
-    change = info.get("usd_24h_change", 0)
-    mcap   = info.get("usd_market_cap", 0)
-    arrow  = "▲" if change > 0 else "▼"
-    sign   = "+" if change > 0 else ""
-    print(f"{coin.upper():12} ${price:>14,.2f}   "
-          f"{arrow} {sign}{change:.2f}%   "
-          f"mcap ${mcap/1e9:.1f}B")
-
-def main():
-    print(f"{'COIN':12} {'PRICE':>16}   {'24H':>9}   {'MARKET CAP':>14}")
-    print("─" * 60)
-
-    try:
-        resp = requests.get(URL, params=PARAMS, timeout=10)
-
-        if resp.status_code == 200:
-            data = resp.json()
-            for coin, info in data.items():
-                format_price(coin, info)
-
-        elif resp.status_code == 401:
-            print("401 – check your API key")
-        elif resp.status_code == 404:
-            print("404 – endpoint not found, check URL")
-        elif resp.status_code == 429:
-            print("429 – rate limited, wait before retrying")
-        else:
-            print(f"Unexpected status: {resp.status_code}")
-
-    except requests.exceptions.Timeout:
-        print("Timed out after 10s – server too slow")
-    except requests.exceptions.ConnectionError:
-        print("Connection failed – check your internet")
-
-if __name__ == "__main__":
-    main()
