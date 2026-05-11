@@ -1,6 +1,10 @@
 import requests
+from dotenv import load_dotenv
+import os
+   
+load_dotenv()
 
-API_KEY = " "
+API_KEY = os.getenv("G_API_key")
 URL = "https://api.groq.com/openai/v1/chat/completions"
 
 headers = {
@@ -9,11 +13,13 @@ headers = {
 }
 
 
-messages = [
-    {"role": "user", "content": "my name is Tisa and I am learning Python"},
-    {"role": "assistant", "content": "Nice to meet you Tisa!"},
-    {"role": "user", "content": "what is my name and what am I learning?"}
-]
+
+system_prompt = "you are a strict assistant"
+system = [{"role": "system", "content": system_prompt}]
+def get_messages_to_Send(history, system):
+   recent = history[-5:]
+   output = system + recent
+   return output
 
 
 messages = []
@@ -22,7 +28,8 @@ while True:
     messages.append({"role":"user","content":user_input})
     body = {
     "model": "openai/gpt-oss-120b",
-    "messages": messages        # the list you've been building
+    "messages": get_messages_to_Send(messages,system) ,
+    "temperature" : 0.1       # the list you've been building
      }
  
     response = requests.post(URL, headers=headers, json=body)
@@ -32,4 +39,4 @@ while True:
     messages.append({"role": "assistant", "content": result})
     if user_input.lower() == "quit":
      break
-    
+

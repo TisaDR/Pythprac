@@ -12,3 +12,8 @@ Fetches live exchange rates from the ExchangeRate API and saves them to a JSON f
 
 ## Output
 Prints live rates and saves them to `rates.json`
+
+
+The secof file llm.py include calling a API from using groq, using the langauge model openai and creating a chat bot with limited memory , 
+installed dotenv so the API-key is a secret and set up the env file .
+the sliding windoe memory helps  limit the memory of the conversations and limits it to 5 conversations
